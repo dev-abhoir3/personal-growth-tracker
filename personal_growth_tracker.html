@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#f5f5f7">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>Personal Growth</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Inter', 'sans-serif'] },
+                    colors: {
+                        aura: {
+                            bg: '#f5f5f7',
+                            text: '#1d1d1f',
+                            textSecondary: '#86868b',
+                            accent: '#0071e3',
+                            success: '#34c759',
+                            danger: '#ff3b30',
+                            border: 'rgba(210, 210, 215, 0.6)'
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 24px rgba(0, 0, 0, 0.04)',
+                        'card': '0 2px 12px rgba(0, 0, 0, 0.04)',
+                        'hover': '0 12px 40px rgba(0, 0, 0, 0.1)'
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out forwards',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards',
+                        'float-up': 'floatUp 1.2s ease-out forwards',
+                        'slide-up': 'slideUp 0.4s ease-out forwards',
+                        'pulse-slow': 'pulseSlow 3s infinite',
+                    },
+                    keyframes: {
+                        fadeIn: { '0%': { opacity: '0', transform: 'translateY(10px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        pop: { '0%': { transform: 'scale(1)' }, '50%': { transform: 'scale(1.2)' }, '100%': { transform: 'scale(1)' } },
+                        floatUp: { '0%': { opacity: '1', transform: 'translateY(0) scale(1)' }, '100%': { opacity: '0', transform: 'translateY(-60px) scale(1.3)' } },
+                        slideUp: { '0%': { opacity: '0', transform: 'translateY(20px)' }, '100%': { opacity: '1', transform: 'translateY(0)' } },
+                        pulseSlow: { '0%, 100%': { opacity: '1' }, '50%': { opacity: '0.7' } }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body { 
+            background-color: #f5f5f7; 
+            -webkit-font-smoothing: antialiased; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        .glass-panel { background: rgba(255, 255, 255, 0.75); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); }
+        .dynamic-card { transition: background-color 0.8s ease, border-color 0.8s ease, box-shadow 0.3s ease, transform 0.2s ease; }
+        .timer-font { font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+
+        .goal-container { position: relative; overflow: hidden; border-radius: 1.5rem; height: 380px; background-color: #1a1a1a; transform: translateZ(0); }
+        .goal-bg { 
+            position: absolute; inset: 0; z-index: 0;
+            background-color: #050505;
+            background-image: url('https://wsrv.nl/?url=www.rushlane.com/wp-content/uploads/2026/10/2027-bmw-f-450-r-launch-price-india-2-1068x601.jpg'); 
+            background-size: cover; 
+            background-position: center;
+            transform: scale(1.02) translateZ(0); 
+            image-rendering: -webkit-optimize-contrast;
+            filter: contrast(1.15) saturate(1.2) brightness(1.1); 
+            transition: transform 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
+        .goal-container:hover .goal-bg { transform: scale(1.05) translateZ(0); }
+
+        #card-progress-fill {
+            background: linear-gradient(180deg, rgba(8, 145, 178, 0.95) 0%, rgba(15, 23, 42, 0.95) 100%);
+            box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.2), 0 -4px 20px rgba(6, 182, 212, 0.4);
+            will-change: height;
+        }
+        
+        .surge-up { transition: height 1.4s cubic-bezier(0.25, 0.1, 0.25, 1) !important; }
+        .settle-down { transition: height 1.8s cubic-bezier(0.4, 0, 0.2, 1) !important; }
+        
+        @keyframes waveFlow { 0% { transform: translateX(0); } 100% { transform: translateX(-1000px); } }
+        @keyframes waveFlowRev { 0% { transform: translateX(-1000px); } 100% { transform: translateX(0); } }
+
+        .card-wave-back {
+            position: absolute; top: -20px; left: 0; width: 2000px; height: 24px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1000 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,12 C250,28 250,-4 500,12 C750,28 750,-4 1000,12 L1000,24 L0,24 Z' fill='rgba(6, 182, 212, 0.4)'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            animation: waveFlow 6s linear infinite;
+        }
+        
+        .card-wave {
+            position: absolute; top: -14px; left: 0; width: 2000px; height: 16px;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 1000 16' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,8 C250,20 250,-4 500,8 C750,20 750,-4 1000,8 L1000,16 L0,16 Z' fill='rgba(8, 145, 178, 0.95)'/%3E%3C/svg%3E");
+            background-repeat: repeat-x;
+            animation: waveFlowRev 5s linear infinite;
+            filter: drop-shadow(0 -2px 4px rgba(6, 182, 212, 0.5));
+        }
+
+        #toast-container { position: fixed; bottom: max(24px, env(safe-area-inset-bottom)); left: 16px; right: 16px; display: flex; flex-direction: column; gap: 12px; z-index: 9999; pointer-events: none; align-items: center; }
+        @media (min-width: 640px) { #toast-container { left: auto; right: 24px; align-items: flex-end; } }
+        .toast-card { pointer-events: auto; width: 100%; max-w-sm; }
+        
+        .modal-hidden { opacity: 0; pointer-events: none; }
+        .modal-visible { opacity: 1; pointer-events: auto; }
+        .negative-coins { color: theme('colors.aura.danger'); }
+    </style>
+</head>
+<body class="text-aura-text font-sans min-h-screen flex flex-col pb-24">
+
+    <nav class="fixed top-0 w-full glass-panel z-40 border-b border-aura-border" style="padding-top: env(safe-area-inset-top);">
+        <div class="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-xl bg-black flex items-center justify-center shadow-sm">
+                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                </div>
+                <span class="font-bold tracking-tight text-xl">Aura</span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="flex items-center gap-2 bg-white/80 px-4 py-1.5 rounded-full border border-gray-200 shadow-sm transition-transform cursor-default hover:scale-105">
+                    <span class="text-lg">🪙</span>
+                    <span id="nav-coins" class="font-bold text-lg tabular-nums transition-colors duration-300">0</span>
+                </div>
+                <button onclick="signOutUser()" id="signout-btn" class="hidden text-sm font-semibold text-aura-textSecondary hover:text-black transition-colors">Sign Out</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow px-4 sm:px-6 max-w-5xl mx-auto w-full" style="padding-top: calc(5rem + env(safe-area-inset-top)); padding-bottom: env(safe-area-inset-bottom);">
+        <header class="mb-8 animate-fade-in flex justify-between items-end">
+            <div>
+                <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mb-2">Personal Growth.</h1>
+                <p class="text-lg text-aura-textSecondary font-medium">Keep your eyes on the prize.</p>
+            </div>
+        </header>
+
+        <section class="goal-container shadow-2xl mb-12 animate-fade-in border border-black/10" style="animation-delay: 0.1s;">
+            <div class="goal-bg"></div>
+            
+            <div class="absolute inset-0 p-6 sm:p-8 flex flex-col justify-between pointer-events-none z-10">
+                <div class="flex justify-between items-start z-10">
+                    <div>
+                        <span class="bg-black/60 backdrop-blur-md text-white px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider shadow-sm border border-white/10">Target: March 2027</span>
+                    </div>
+                </div>
+                
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 z-10">
+                    <div class="relative overflow-hidden bg-black/40 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl min-w-[160px]">
+                        <div id="card-progress-fill" class="absolute bottom-0 left-0 w-full z-0" style="height: 0%;">
+                            <div class="card-wave-back"></div>
+                            <div class="card-wave"></div>
+                        </div>
+
+                        <div class="relative z-10 p-4">
+                            <p class="text-white/90 text-sm font-semibold mb-1 uppercase tracking-wider">Focus Funds</p>
+                            <div class="flex items-baseline gap-1">
+                                <span id="goal-current-coins" class="text-3xl font-bold text-white tabular-nums drop-shadow-md">0</span>
+                                <span class="text-white/70 font-medium">/ 15,000</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="goal-percentage" class="text-6xl sm:text-7xl font-black text-white drop-shadow-2xl tabular-nums tracking-tighter">
+                        0%
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="flex justify-between items-center mb-6 animate-fade-in" style="animation-delay: 0.2s;">
+            <h2 class="text-2xl font-bold tracking-tight">Your Routines</h2>
+            <div class="flex gap-2 sm:gap-3">
+                <button onclick="openModal()" class="bg-black text-white px-4 sm:px-5 py-2.5 rounded-full text-xs sm:text-sm font-semibold hover:bg-gray-800 transition-all active:scale-95 shadow-md flex items-center gap-1 sm:gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span class="hidden sm:inline">Add Routine</span>
+                </button>
+            </div>
+        </div>
+
+        <div id="habits-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pb-12">
+            <div class="col-span-full text-center py-12 text-gray-400 font-medium animate-pulse">Loading Data...</div>
+        </div>
+    </main>
+
+    <!-- Overlay Auth Screen -->
+    <div id="auth-overlay" class="fixed inset-0 z-[100] flex items-center justify-center bg-aura-bg/80 backdrop-blur-xl transition-opacity duration-500">
+        <div class="bg-white/90 backdrop-blur-2xl border border-white w-full max-w-sm rounded-[2rem] shadow-2xl p-8 relative transform transition-all">
+            <div class="w-12 h-12 rounded-2xl bg-black flex items-center justify-center shadow-md mb-6 mx-auto">
+                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+            </div>
+            <h2 class="text-2xl font-bold text-center mb-2 tracking-tight">Welcome to Aura</h2>
+            <p class="text-sm text-aura-textSecondary text-center mb-8 font-medium">Sign in to sync your progress.</p>
+            
+            <form id="auth-form" onsubmit="event.preventDefault();" class="space-y-4">
+                <div>
+                    <input type="email" id="auth-email" required class="w-full bg-black/5 border border-black/10 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-aura-accent transition-all font-medium text-sm" placeholder="Email Address">
+                </div>
+                <div>
+                    <input type="password" id="auth-password" required class="w-full bg-black/5 border border-black/10 rounded-xl px-4 py-3.5 focus:outline-none focus:ring-2 focus:ring-aura-accent transition-all font-medium text-sm" placeholder="Password">
+                </div>
+                
+                <div class="pt-2 space-y-3">
+                    <button type="button" onclick="handleSignIn(event)" class="w-full bg-black text-white py-3.5 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-md text-sm">Sign In</button>
+                    <button type="button" onclick="handleSignUp(event)" class="w-full bg-white text-black border border-gray-200 py-3.5 rounded-xl font-semibold hover:bg-gray-50 transition-colors shadow-sm text-sm">Create Account</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Habit Modal -->
+    <div id="habit-modal" class="fixed inset-0 z-50 flex items-center justify-center modal-hidden transition-opacity duration-300 px-4">
+        <div class="absolute inset-0 bg-black/40 backdrop-blur-sm" onclick="closeModal()"></div>
+        
+        <div class="bg-white/95 backdrop-blur-2xl border border-white/50 w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 relative z-10 transform transition-transform duration-300 scale-95" id="modal-content">
+            <h3 class="text-2xl font-bold mb-6">Add Routine</h3>
+            
+            <form id="habit-form" onsubmit="saveHabit(event)" class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-aura-textSecondary mb-2">Icon</label>
+                    <div class="flex gap-3">
+                        <label class="cursor-pointer">
+                            <input type="radio" name="habit-icon" value="💪" class="peer sr-only">
+                            <div class="w-12 h-12 flex items-center justify-center text-2xl bg-gray-50 border border-gray-200 rounded-xl peer-checked:border-black peer-checked:bg-black/5 transition-all">💪</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="habit-icon" value="🧠" class="peer sr-only" checked>
+                            <div class="w-12 h-12 flex items-center justify-center text-2xl bg-gray-50 border border-gray-200 rounded-xl peer-checked:border-black peer-checked:bg-black/5 transition-all">🧠</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="habit-icon" value="📱" class="peer sr-only">
+                            <div class="w-12 h-12 flex items-center justify-center text-2xl bg-gray-50 border border-gray-200 rounded-xl peer-checked:border-black peer-checked:bg-black/5 transition-all">📱</div>
+                        </label>
+                        <label class="cursor-pointer">
+                            <input type="radio" name="habit-icon" value="💧" class="peer sr-only">
+                            <div class="w-12 h-12 flex items-center justify-center text-2xl bg-gray-50 border border-gray-200 rounded-xl peer-checked:border-black peer-checked:bg-black/5 transition-all">💧</div>
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-aura-textSecondary mb-2">Title</label>
+                    <input type="text" id="habit-title" required class="w-full bg-black/5 border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-aura-accent transition-all font-medium" placeholder="e.g., Read 10 Pages">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-aura-textSecondary mb-2">Description</label>
+                    <input type="text" id="habit-desc" required class="w-full bg-black/5 border border-black/10 rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-aura-accent transition-all" placeholder="Small steps lead to big changes.">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-semibold text-aura-textSecondary mb-2">Routine Type</label>
+                    <div class="grid grid-cols-2 gap-3">
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="habit-type" value="build" class="peer sr-only" checked>
+                            <div class="p-3 text-center rounded-xl border border-gray-200 peer-checked:border-aura-accent peer-checked:bg-blue-50 peer-checked:text-aura-accent font-semibold text-sm transition-all">
+                                🏗️ Build (Daily)
+                            </div>
+                        </label>
+                        <label class="relative cursor-pointer">
+                            <input type="radio" name="habit-type" value="avoid" class="peer sr-only">
+                            <div class="p-3 text-center rounded-xl border border-gray-200 peer-checked:border-aura-danger peer-checked:bg-red-50 peer-checked:text-aura-danger font-semibold text-sm transition-all">
+                                🚫 Avoid (Streak)
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-4">
+                    <button type="button" onclick="closeModal()" class="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors">Cancel</button>
+                    <button type="submit" class="flex-1 bg-black text-white py-3 rounded-xl font-semibold hover:bg-gray-800 transition-colors shadow-md">Create</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script type="module">
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
+
+        // =========================================================================
+        // ☁️ CLOUD DATABASE SETUP (Supabase)
+        // =========================================================================
+        // When deploying to GitHub, replace the strings below with your keys from Supabase:
+        // Project Settings -> API -> Project URL & anon/public key.
+        // =========================================================================
+        const supabaseUrl = typeof __supabase_url !== 'undefined' ? __supabase_url : "https://czlzafggftvfxragczty.supabase.co";
+        const supabaseKey = typeof __supabase_key !== 'undefined' ? __supabase_key : "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImN6bHphZmdnZnR2ZnhyYWdjenR5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTE3MDczOTEsImV4cCI6MjEwNzI4MzM5MX0.H6epUmvGV14-rIPc8lefpNb6-zNTPSFesiZJviH5bcY";
+
+        let supabase;
+        try {
+            supabase = createClient(supabaseUrl, supabaseKey);
+        } catch (e) {
+            console.error("Supabase Config Error:", e);
+        }
+
+        let userId = null;
+        const GOAL_TARGET = 15000;
+        window.state = { coins: 0, habits: [] };
+
+        const getLocalDateString = (d = new Date()) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const getYesterdayString = () => { const d = new Date(); d.setDate(d.getDate() - 1); return getLocalDateString(d); };
+        
+        const getToday2AM = () => {
+            const d = new Date();
+            d.setHours(2, 0, 0, 0);
+            return d.getTime();
+        };
+
+        async function initApp() {
+            if (!supabase) return showToast("Config Error", "Please add your Supabase URL and Key to the HTML file.", "error");
+
+            // Check if there is an active session on load
+            const { data: { session } } = await supabase.auth.getSession();
+            handleAuthChange(session);
+
+            // Listen for future logins/logouts
+            supabase.auth.onAuthStateChange((event, session) => {
+                handleAuthChange(session);
+            });
+        }
+
+        function handleAuthChange(session) {
+            const overlay = document.getElementById('auth-overlay');
+            const signoutBtn = document.getElementById('signout-btn');
+            
+            if (session) {
+                userId = session.user.id;
+                overlay.style.opacity = '0';
+                setTimeout(() => overlay.style.display = 'none', 500);
+                signoutBtn.classList.remove('hidden');
+                
+                fetchUserData();
+            } else {
+                userId = null;
+                overlay.style.display = 'flex';
+                void overlay.offsetWidth;
+                overlay.style.opacity = '1';
+                signoutBtn.classList.add('hidden');
+            }
+        }
+
+        window.handleSignIn = async (event) => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) return showToast('Error', 'Please enter email and password', 'error');
+            
+            const btn = event.target;
+            const ogText = btn.innerText;
+            btn.innerText = 'Signing In...';
+            
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            
+            btn.innerText = ogText;
+            if (error) {
+                showToast('Sign In Failed', error.message, 'error');
+            } else {
+                showToast('Welcome Back', 'Successfully signed in.');
+            }
+        };
+
+        window.handleSignUp = async (event) => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            if (!email || !password) return showToast('Error', 'Please enter email and password', 'error');
+            
+            const btn = event.target;
+            const ogText = btn.innerText;
+            btn.innerText = 'Creating...';
+            
+            const { data, error } = await supabase.auth.signUp({ email, password });
+            
+            btn.innerText = ogText;
+            
+            if (error) {
+                showToast('Sign Up Failed', error.message, 'error');
+            } else if (data.session === null) {
+                showToast('Verify Email', 'Please check your email for a confirmation link. (Or turn off confirmations in Supabase).', 'error');
+            } else {
+                showToast('Account Created', 'Welcome to Aura!');
+            }
+        };
+
+        window.signOutUser = async () => {
+            await supabase.auth.signOut();
+            document.getElementById('auth-email').value = '';
+            document.getElementById('auth-password').value = '';
+            document.getElementById('habits-grid').innerHTML = '';
+            window.state = { coins: 0, habits: [] };
+            updateUIStats();
+            showToast('Signed Out', 'You have been safely logged out.');
+        };
+
+        async function fetchUserData() {
+            if (!userId) return;
+
+            // Fetch Profile (Coins)
+            let { data: profile, error: profileErr } = await supabase
+                .from('profiles')
+                .select('coins')
+                .eq('id', userId)
+                .single();
+
+            if (!profile && profileErr?.code === 'PGRST116') { // No rows found
+                await supabase.from('profiles').insert([{ id: userId, coins: 0 }]);
+                window.state.coins = 0;
+                await seedDefaultHabits();
+            } else if (profile) {
+                window.state.coins = profile.coins;
+            }
+
+            // Fetch Habits
+            await fetchHabits();
+        }
+
+        async function fetchHabits() {
+            if (!userId) return;
+            const { data: habits } = await supabase.from('habits').select('*').eq('user_id', userId);
+            window.state.habits = habits || [];
+            
+            await checkMissedDays(); 
+            renderHabits();
+            updateUIStats();
+        }
+
+        async function seedDefaultHabits() {
+            const defaults = [
+                { user_id: userId, type: 'avoid', title: 'No Phone Distraction', description: 'Protect your attention and stay present.', icon: '📱', start_time: getToday2AM() },
+                { user_id: userId, type: 'build', title: 'Morning Exercise', description: '30 mins of physical activity.', icon: '💪', streak: 0, last_completed_date: null },
+                { user_id: userId, type: 'build', title: 'Deep Learning', description: '30 mins of focused skill building.', icon: '🧠', streak: 0, last_completed_date: null }
+            ];
+            await supabase.from('habits').insert(defaults);
+            await fetchHabits();
+        }
+
+        async function updateCoins(amount) {
+            if (!userId) return;
+            const newTotal = window.state.coins + amount;
+            window.state.coins = newTotal; // Optimistic update
+            updateUIStats();
+            await supabase.from('profiles').update({ coins: newTotal }).eq('id', userId);
+        }
+
+        window.completeBuild = async (id, event) => {
+            if (!userId) return;
+            const today = getLocalDateString();
+            const habit = window.state.habits.find(h => h.id === id);
+            
+            if (!habit || habit.last_completed_date === today) return;
+
+            const newStreak = habit.streak + 1;
+            const baseReward = Math.floor(Math.random() * 6) + 15; // 15-20
+            const streakBonus = (newStreak - 1) * 5; 
+            const totalReward = baseReward + streakBonus;
+
+            fireConfetti(event);
+            showFloatingText(`+${totalReward}`, event.clientX, event.clientY, '#34c759');
+
+            // Optimistic UI update
+            habit.streak = newStreak;
+            habit.last_completed_date = today;
+            renderHabits();
+            
+            await supabase.from('habits').update({ streak: newStreak, last_completed_date: today }).eq('id', id);
+            await updateCoins(totalReward);
+        };
+
+        window.failAvoid = async (id, event) => {
+            if (!userId) return;
+            const habit = window.state.habits.find(h => h.id === id);
+            if (!habit) return;
+
+            const penalty = -150; 
+            const newStartTime = Date.now();
+            
+            const card = document.getElementById(`habit-card-${id}`);
+            if(card) {
+                card.style.transform = "translateX(10px)";
+                setTimeout(() => card.style.transform = "translateX(-10px)", 100);
+                setTimeout(() => card.style.transform = "translateX(0)", 200);
+            }
+            
+            showFloatingText(`${penalty}`, event.clientX, event.clientY, '#ff3b30');
+            showToast('Streak Broken', 'Timer reset. Points deducted!', 'error');
+
+            habit.start_time = newStartTime; // Optimistic update
+            
+            await supabase.from('habits').update({ start_time: newStartTime }).eq('id', id);
+            await updateCoins(penalty);
+        };
+
+        window.saveHabit = async (event) => {
+            event.preventDefault();
+            if (!userId) return;
+
+            const title = document.getElementById('habit-title').value;
+            const desc = document.getElementById('habit-desc').value;
+            const type = document.querySelector('input[name="habit-type"]:checked').value;
+            const icon = document.querySelector('input[name="habit-icon"]:checked').value;
+            
+            const newHabit = { user_id: userId, type, title, description: desc, icon };
+
+            if (type === 'build') {
+                newHabit.streak = 0;
+                newHabit.last_completed_date = null;
+            } else {
+                newHabit.start_time = Date.now();
+            }
+            
+            const { data } = await supabase.from('habits').insert([newHabit]).select();
+            if (data && data[0]) {
+                window.state.habits.push(data[0]);
+                renderHabits();
+            }
+            
+            closeModal();
+            showToast('Routine Created', 'Your new habit has been added.');
+        };
+
+        window.deleteHabit = async (id) => {
+            if (!userId) return;
+            window.state.habits = window.state.habits.filter(h => h.id !== id);
+            renderHabits();
+            await supabase.from('habits').delete().eq('id', id);
+            showToast('Routine Removed', 'Habit deleted successfully.');
+        }
+
+        async function checkMissedDays() {
+            if (!userId) return;
+            const today = getLocalDateString();
+            const yesterday = getYesterdayString();
+            let brokeStreak = false;
+            
+            for (const habit of window.state.habits) {
+                if (habit.type === 'build' && habit.streak > 0) {
+                    if (habit.last_completed_date !== today && habit.last_completed_date !== yesterday) {
+                        habit.streak = 0; // Optimistic update
+                        await supabase.from('habits').update({ streak: 0 }).eq('id', habit.id);
+                        showToast('Streak Reset', `You missed ${habit.title} yesterday.`, 'error');
+                        brokeStreak = true;
+                    }
+                }
+            }
+            if (brokeStreak) renderHabits();
+        }
+
+        function updateUIStats() {
+            const coinEl = document.getElementById('nav-coins');
+            const currentTotal = window.state.coins;
+            
+            if (currentTotal < 0) {
+                coinEl.classList.add('negative-coins');
+                coinEl.classList.remove('text-aura-accent');
+            } else {
+                coinEl.classList.remove('negative-coins');
+                coinEl.classList.add('text-aura-accent');
+            }
+
+            if (coinEl.innerText !== currentTotal.toString()) {
+                coinEl.classList.remove('animate-pop');
+                void coinEl.offsetWidth;
+                coinEl.classList.add('animate-pop');
+            }
+            coinEl.innerText = currentTotal;
+            document.getElementById('goal-current-coins').innerText = currentTotal.toLocaleString();
+            
+            let percentage = (currentTotal / GOAL_TARGET) * 100;
+            if (percentage < 0) percentage = 0;
+            if (percentage > 100) percentage = 100;
+            
+            let percentText = percentage === 100 ? "100%" : (percentage === 0 ? "0%" : percentage.toFixed(1) + "%");
+            document.getElementById('goal-percentage').innerText = percentText;
+            
+            const fillEl = document.getElementById('card-progress-fill');
+            
+            if (fillEl) {
+                const oldCoins = window.lastCoins !== undefined ? window.lastCoins : 0;
+                
+                if (window.lastCoins !== undefined && currentTotal > oldCoins) {
+                    if (window.surgeTimeout) clearTimeout(window.surgeTimeout);
+                    
+                    fillEl.classList.remove('settle-down');
+                    fillEl.classList.add('surge-up');
+                    
+                    void fillEl.offsetWidth; 
+                    fillEl.style.height = '100%';
+
+                    window.surgeTimeout = setTimeout(() => {
+                        fillEl.classList.remove('surge-up');
+                        fillEl.classList.add('settle-down');
+                        void fillEl.offsetWidth; 
+                        fillEl.style.height = `${percentage}%`;
+                    }, 1400); 
+                    
+                } else {
+                    fillEl.classList.remove('surge-up');
+                    fillEl.classList.add('settle-down');
+                    fillEl.style.height = `${percentage}%`;
+                }
+                
+                window.lastCoins = currentTotal;
+            }
+        }
+
+        function renderHabits() {
+            const grid = document.getElementById('habits-grid');
+            grid.innerHTML = '';
+            
+            if(window.state.habits.length === 0) {
+                grid.innerHTML = '<div class="col-span-full text-center py-12 text-gray-400">No routines found. Add one above.</div>';
+                return;
+            }
+
+            const today = getLocalDateString();
+
+            window.state.habits.forEach((habit, index) => {
+                const card = document.createElement('div');
+                card.id = `habit-card-${habit.id}`;
+                card.className = 'glass-panel border rounded-3xl p-6 shadow-card hover:shadow-hover relative flex flex-col overflow-hidden animate-slide-up dynamic-card group bg-white/80';
+                card.style.animationDelay = `${index * 50}ms`;
+
+                const delBtn = `
+                    <button onclick="deleteHabit('${habit.id}')" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-red-50 text-red-500 hover:bg-red-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity z-20">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                    </button>
+                `;
+
+                if (habit.type === 'build') {
+                    const isCompleted = habit.last_completed_date === today;
+                    card.dataset.completed = isCompleted ? "true" : "false";
+                    
+                    card.innerHTML = `
+                        ${delBtn}
+                        <div class="flex justify-between items-start mb-4 z-10">
+                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl border border-gray-100">
+                                ${habit.icon || '🏗️'}
+                            </div>
+                            <div class="flex flex-col items-end pr-8">
+                                <div class="flex items-center gap-1">
+                                    <span class="font-bold text-2xl timer-font ${habit.streak > 0 ? 'text-aura-accent' : 'text-gray-400'}">${habit.streak}</span>
+                                    <span class="text-sm ${habit.streak > 0 ? 'opacity-100' : 'opacity-0'}">🔥</span>
+                                </div>
+                                <span class="text-[10px] text-aura-textSecondary uppercase tracking-wider font-bold">Day Streak</span>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mb-1 z-10 pr-6">${habit.title}</h3>
+                        <p class="text-sm text-aura-textSecondary mb-6 flex-grow z-10">${habit.description}</p>
+                        
+                        <div class="mt-auto pt-4 border-t border-black/5 z-10 flex justify-between items-center">
+                            <span id="status-${habit.id}" class="text-xs font-semibold ${isCompleted ? 'text-aura-success' : 'text-aura-textSecondary'} transition-colors">
+                                ${isCompleted ? 'Completed Today' : 'Pending'}
+                            </span>
+                            
+                            ${isCompleted ? `
+                                <div class="w-10 h-10 rounded-full bg-green-100 text-aura-success flex items-center justify-center shadow-sm">
+                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                                </div>
+                            ` : `
+                                <button onclick="completeBuild('${habit.id}', event)" class="bg-black text-white px-5 py-2.5 rounded-full text-sm font-semibold hover:bg-gray-800 transition-transform active:scale-95 shadow-md">
+                                    Complete
+                                </button>
+                            `}
+                        </div>
+                    `;
+                } else {
+                    card.innerHTML = `
+                        ${delBtn}
+                        <div class="flex justify-between items-start mb-4 z-10">
+                            <div class="w-12 h-12 rounded-2xl bg-white shadow-sm flex items-center justify-center text-2xl border border-gray-100">
+                                ${habit.icon || '🚫'}
+                            </div>
+                            <div class="flex flex-col items-end pr-8">
+                                <span class="text-[10px] text-aura-textSecondary uppercase tracking-wider font-bold mb-1">Time Clean</span>
+                                <div id="timer-${habit.id}" class="text-lg font-bold timer-font tracking-tight text-aura-text flex gap-1 items-baseline">
+                                    <!-- Populated by setInterval -->
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mb-1 z-10 pr-6">${habit.title}</h3>
+                        <p class="text-sm text-aura-textSecondary mb-6 flex-grow z-10">${habit.description}</p>
+                        
+                        <div class="mt-auto pt-4 border-t border-black/5 z-10">
+                            <button onclick="failAvoid('${habit.id}', event)" class="w-full bg-white border border-red-200 text-aura-danger py-2.5 rounded-xl text-sm font-bold hover:bg-red-50 hover:border-red-300 transition-all active:scale-95 shadow-sm">
+                                Distracted (-150)
+                            </button>
+                        </div>
+                    `;
+                }
+                
+                grid.appendChild(card);
+            });
+
+            updateDynamicColors();
+        }
+
+        function updateLiveTimers() {
+            const now = Date.now();
+            window.state.habits.forEach(habit => {
+                if (habit.type === 'avoid') {
+                    const el = document.getElementById(`timer-${habit.id}`);
+                    if (!el) return;
+
+                    let diff = now - habit.start_time;
+                    if (diff < 0) diff = 0;
+
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+                    const mins = Math.floor((diff / 1000 / 60) % 60);
+                    const secs = Math.floor((diff / 1000) % 60);
+
+                    el.innerHTML = `
+                        <span class="text-xl text-aura-accent">${days}</span><span class="text-[10px] text-aura-textSecondary">d</span>
+                        <span class="text-xl">${hours.toString().padStart(2, '0')}</span><span class="text-[10px] text-aura-textSecondary">h</span>
+                        <span class="text-xl">${mins.toString().padStart(2, '0')}</span><span class="text-[10px] text-aura-textSecondary">m</span>
+                        <span class="text-xl">${secs.toString().padStart(2, '0')}</span><span class="text-[10px] text-aura-textSecondary">s</span>
+                    `;
+                }
+            });
+        }
+
+        function updateDynamicColors() {
+            const now = new Date();
+            const startOfDay = new Date(now).setHours(0,0,0,0);
+            const endOfDay = new Date(now).setHours(23,59,59,999);
+            
+            let ratio = (now.getTime() - startOfDay) / (endOfDay - startOfDay);
+            let intensity = Math.pow(ratio, 4); 
+
+            window.state.habits.forEach(habit => {
+                if (habit.type === 'build') {
+                    const card = document.getElementById(`habit-card-${habit.id}`);
+                    if (!card) return;
+
+                    if (card.dataset.completed === "true") {
+                        card.style.backgroundColor = 'rgba(240, 253, 244, 0.9)';
+                        card.style.borderColor = 'rgba(134, 239, 172, 0.6)';
+                    } else {
+                        const gb = Math.round(255 - (55 * intensity)); 
+                        card.style.backgroundColor = `rgba(255, ${gb}, ${gb}, 0.85)`;
+                        
+                        const borderGb = Math.round(220 - (100 * intensity));
+                        card.style.borderColor = `rgba(255, ${borderGb}, ${borderGb}, 0.6)`;
+
+                        const statusText = document.getElementById(`status-${habit.id}`);
+                        if (statusText && ratio > 0.8) {
+                            statusText.innerText = "Time is running out!";
+                            statusText.className = "text-xs font-bold text-red-500 animate-pulse-slow";
+                        }
+                    }
+                }
+            });
+        }
+
+        window.openModal = () => {
+            const modal = document.getElementById('habit-modal');
+            const content = document.getElementById('modal-content');
+            document.getElementById('habit-form').reset();
+            
+            modal.classList.remove('modal-hidden');
+            modal.classList.add('modal-visible');
+            setTimeout(() => {
+                content.classList.remove('scale-95');
+                content.classList.add('scale-100');
+            }, 10);
+        };
+
+        window.closeModal = () => {
+            const modal = document.getElementById('habit-modal');
+            const content = document.getElementById('modal-content');
+            content.classList.remove('scale-100');
+            content.classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.remove('modal-visible');
+                modal.classList.add('modal-hidden');
+            }, 300);
+        };
+
+        function fireConfetti(event) {
+            let origin = { x: 0.5, y: 0.5 };
+            if (event) {
+                const rect = event.target.getBoundingClientRect();
+                origin = {
+                    x: (rect.left + rect.width / 2) / window.innerWidth,
+                    y: (rect.top + rect.height / 2) / window.innerHeight
+                };
+            }
+            confetti({ particleCount: 80, spread: 60, origin: origin, colors: ['#0071e3', '#34c759'], disableForReducedMotion: true });
+        }
+
+        function showFloatingText(text, x, y, color) {
+            const el = document.createElement('div');
+            el.className = 'absolute pointer-events-none font-black text-4xl animate-float-up z-50';
+            el.innerText = text;
+            el.style.color = color;
+            el.style.textShadow = '0 4px 12px rgba(0,0,0,0.2)';
+            
+            const offsetX = (Math.random() - 0.5) * 40;
+            el.style.left = `${x + offsetX}px`;
+            el.style.top = `${y - 40}px`;
+            
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 1200);
+        }
+
+        function showToast(title, message, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            const bg = type === 'success' ? 'bg-white' : 'bg-red-50';
+            const border = type === 'success' ? 'border-gray-200' : 'border-red-200';
+            
+            toast.className = `toast-card animate-slide-up ${bg} border ${border} rounded-2xl p-4 shadow-xl flex flex-col gap-1`;
+            toast.innerHTML = `
+                <h4 class="font-bold text-sm ${type === 'error' ? 'text-red-700' : 'text-aura-text'}">${title}</h4>
+                <p class="text-xs text-aura-textSecondary leading-relaxed">${message}</p>
+            `;
+            container.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateY(20px)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 4000);
+        }
+
+        initApp();
+        setInterval(updateLiveTimers, 1000);
+        setInterval(updateDynamicColors, 60000); 
+
+    </script>
+</body>
+</html>
